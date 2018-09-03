@@ -4,6 +4,9 @@ from sklearn.preprocessing import StandardScaler
 import sklearn.neural_network as classifier
 import pandas as pd
 
+import warnings
+warnings.filterwarnings('ignore')
+
 class content:
     learn = None
     fn = 'memory.dat'
@@ -40,14 +43,16 @@ class content:
         self.df.to_csv(self.fn, sep=self.fnsep, index=False)
 
     def train(self, num_layers, results):
-        self.learn = classifier.MLPClassifier(hidden_layer_sizes=(num_layers, num_layers, num_layers))
+        self.learn = classifier.MLPClassifier(hidden_layer_sizes=(num_layers, num_layers, num_layers), solver='lbfgs', max_iter=10000, warm_start=False, activation='relu')
         scaler = StandardScaler()
         features = scaler.fit_transform(self.df) 
         self.learn.fit(features, results)
 
     def predict(self, current_features):
         if self.learn is not None:
-            return self.learn.predict(current_features)[0]
+            scaler = StandardScaler()
+            features = scaler.fit_transform(current_features)
+            return self.learn.predict(features)[0]
         else:
             print("ERROR: Not Possible to Predict.")
             return 0
